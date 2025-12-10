@@ -14,8 +14,7 @@ class ManHinhChiTiet extends StatefulWidget {
 }
 
 class _ManHinhChiTietState extends State<ManHinhChiTiet> {
-  //TOASK
-  //Controller quan ly o nhap ghi chu
+  //Controller quản lý ô ghi chú
   late TextEditingController _ghiChuController; //TOASK
 
   @override
@@ -33,12 +32,10 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
       appBar: AppBar(
         title: Text(widget.monHoc.tenMon),
         actions: [
-          //TOASK
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
-              //TOASK syntax
-              //Hien bang xac nhan xoa
+              //Hiện bảng xác nhận xóa
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -48,7 +45,9 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
                       child: const Text("Hủy"),
-                    ), //TOASK dau ()
+                    ),
+
+
                     TextButton(
                       onPressed: () {
                         widget.hamXoa(); //Goi ham xoa
@@ -61,18 +60,20 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
                       ),
                     ),
                   ],
-                ), //TOASK
+                ),
               );
             },
           ),
         ],
       ),
+
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, //TOASK
+          crossAxisAlignment: CrossAxisAlignment.start, //Cho sát bên trái ?
           children: [
-            //Thong tin gio va phong
+            //Thông tin giờ và phòng
             Card(
               color: Colors.blue.shade50,
               child: ListTile(
@@ -98,7 +99,6 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
                 hintText: "VD: Nhớ mang laptop,...",
               ),
               onChanged: (text) {
-                //TOASK
                 widget.monHoc.ghiChu = text;
               },
             ),

@@ -1,0 +1,216 @@
+import 'package:flutter/material.dart';
+import 'package:numberpicker/numberpicker.dart'; //Cho đồng hồ cuộn
+import '../models/mon_hoc.dart';
+
+class HopThoaiThemMon extends StatefulWidget {
+  const HopThoaiThemMon({super.key});
+
+  @override
+  State<HopThoaiThemMon> createState() => _HopThoaiThemMonState();
+}
+
+class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
+  //Controller
+  final _tenController = TextEditingController();
+  final _phongController = TextEditingController();
+  final _gioController = TextEditingController();
+
+  //Hàm chọn giờ
+  Future<void> _chonGio() async {
+    int gioChon = TimeOfDay.now().hour;
+    int phutChon = TimeOfDay.now().minute;
+
+    //Đọc giờ cũ để tiếp tục từ đó
+    if (_gioController.text.isNotEmpty) {
+      try {
+        var parts = _gioController.text.split(':');
+        gioChon = int.parse(parts[0]);
+        phutChon = int.parse(parts[1]);
+      } catch (e) {
+        //Nếu lỗi thì dùng giờ hiện tại để bắt đầu
+      }
+    }
+                    
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        //StatefulBuilder: Để nhảy số khi cuộn
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text("Chọn giờ học", textAlign: TextAlign.center),
+
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //Cột giờ
+                  NumberPicker(
+                    value: gioChon,
+                    minValue: 0,
+                    maxValue: 23,
+                    infiniteLoop: true,
+                    itemWidth: 80,
+
+                    textStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                    selectedTextStyle: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+
+                    //Để có 2 cái thanh chỗ số đang được chọn
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.blueAccent),
+                        bottom: BorderSide(color: Colors.blueAccent),
+                      ),
+                    ),
+
+                    //Gán số đang được chọn vào biến gioChon
+                    onChanged: (value) {
+                      setStateDialog(() => gioChon = value);
+                    },
+                  ),
+
+
+                  const Text(
+                    ":",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+
+
+                  //Cột phút
+                  NumberPicker(
+                    value: phutChon,
+                    minValue: 0,
+                    maxValue: 59,
+                    infiniteLoop: true,
+                    itemWidth: 80,
+
+                    //Hiển thị 00 thay vì 0 bằng customMapper
+                    textMapper: (numberText) => numberText.padLeft(2, '0'),
+
+                    textStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                    selectedTextStyle: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+
+                    //Hiển thị 2 thanh màu ở số đang được chọn
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Colors.blueAccent),
+                        bottom: BorderSide(color: Colors.blueAccent),
+                      ),
+                    ),
+
+                    //Gán số đang được chọn vào biến
+                    onChanged: (value) {
+                      setStateDialog(() => phutChon = value);
+                    },
+                  ),
+                ],
+              ),
+
+
+              //Các nút thao tác chọn giờ
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Hủy"),
+                ),
+
+                ElevatedButton(
+                  onPressed: () {
+                    String gio = gioChon.toString();
+                    String phut = phutChon.toString().padLeft(2, '0');
+                    _gioController.text = "$gio:$phut";
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Xong"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  @override
+  void dispose() {
+    //Hủy controller
+    _tenController.dispose();
+    _phongController.dispose();
+    _gioController.dispose();
+    super.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      //Giao diện thêm môn học
+      title: const Text("Thêm môn học mới"),
+
+      //SigleChildScrollView: Nó biến nội dung bên trong thành một vùng cuộn được. Nếu không đủ chỗ, người dùng có thể vuốt ngón tay để xem phần bị che khuất.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _tenController,
+              decoration: const InputDecoration(labelText: "Tên môn", hintText: "VD: Toán"),
+            ),
+
+            TextField(
+              controller: _phongController,
+              decoration: const InputDecoration(labelText: "Phòng", hintText: "VD: B101"),
+            ),
+
+            TextField(
+              controller: _gioController,
+              readOnly: true, //Ngăn không bàn phím lên khi nhấn vào
+              decoration: const InputDecoration(
+                labelText: "Giờ học",
+                prefixIcon: Icon(Icons.access_time), 
+              ),
+              onTap: _chonGio,
+            ),
+          ],
+        ),
+      ),
+
+
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context), child: const Text("Hủy"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if(_tenController.text.trim().isEmpty) return;
+            
+            //Tạo object MonHoc từ dữ liệu nhập
+            final monMoi = MonHoc(
+              tenMon: _tenController.text,
+              phongHoc: _phongController.text,
+              thoiGian: _gioController.text,
+            );
+
+            //Trả về dữ liệu cho màn hình chính
+            Navigator.pop(context, monMoi);
+          },
+          child: const Text("Lưu"), 
+        )
+      ],
+    );
+  }
+}
