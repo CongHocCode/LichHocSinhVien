@@ -65,4 +65,12 @@ class DanhSachService {
       return a.thoiGian.compareTo(b.thoiGian);
     });
   }
+
+  // Hàm này xóa hết dữ liệu cũ và nạp danh sách mới vào
+  Future<void> lamMoiDanhSach(List<MonHoc> danhSachMoi) async {
+    _danhSach.clear();
+    _danhSach.addAll(danhSachMoi);
+    _sapXep(); // Sắp xếp lại
+    await _saveData(); // Lưu xuống ổ cứng
+  }
 }
