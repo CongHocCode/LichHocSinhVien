@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="lich_hoc_sv"
+        android:label="SIVI Calendar"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

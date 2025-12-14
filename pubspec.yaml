@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  font_awesome_flutter: ^10.12.0
   intl: ^0.20.2
   numberpicker: ^2.1.2
   shared_preferences: ^2.5.4
@@ -17,6 +18,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+  assets:
+      - assets/images/
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/images/penguin.png"  # <-- Đổi đường dẫn tới ảnh của bạn
+  min_sdk_android: 21 # Quan trọng để hỗ trợ máy đời mới
