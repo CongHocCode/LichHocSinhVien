@@ -1,11 +1,11 @@
 // lib/screens/man_hinh_lich.dart
 
-import 'dart:convert'; //De dung jsonEncode jsonDecode TOASK
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; //De luu du lieu
+import 'package:intl/intl.dart'; //Ngày giờ quốc tế, format các kiểu
+import 'package:lich_hoc_sv/services/danh_sach_service.dart';
 import '../models/mon_hoc.dart'; // Import model
 import 'man_hinh_chi_tiet.dart'; // Import man hinh chi tiet
-import '../widgets/the_mon_hoc.dart';    // Import widget Card
+import '../widgets/the_mon_hoc.dart'; // Import widget Card
 import '../widgets/hop_thoai_them.dart'; // Import widget Dialog
 
 //Man hinh chinh (Co the thay doi -> StatefulWidget)
@@ -16,76 +16,120 @@ class ManHinhLich extends StatefulWidget {
 }
 
 class _ManHinhLichState extends State<ManHinhLich> {
-  //List rỗng để lưu dữ liệu môn học
-  final List<MonHoc> _danhSach = [];
+  //Khởi tạo Service (Quản lý data)
+  final DanhSachService _service = DanhSachService();
+
+  late DateTime _ngayDauTuan; //Biến lưu ngày đầu tuần (Thứ 2) đang xem
+
 
   @override
   void initState() {
     super.initState();
-    _docDuLieu();
+
+    // 1. Tính ngày thứ 2 của tuần hiện tại
+    final now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day); // Reset giờ về 00:00:00 để so sánh cho chuẩn
+    _ngayDauTuan = today.subtract(Duration(days: now.weekday - 1)); // Ví dụ công thức: Thứ 5 (5) - 1 = 4 lùi 4 ngày là về thứ 2
+
+
+    _khoiTaoDuLieu();
   }
 
-  // --- Hàm lưu / đọc dữ liệu từ file json ---
-  Future<void> _luuDuLieu() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    //List<MonHoc> -> List<Map> -> JSON
-    //map((e) => e.toJson()) duyet tung phan tu va bien thanh map TOASK
-    String dataJson = jsonEncode(_danhSach.map((e) => e.toJson()).toList());
-
-    //Lưu chuỗi vào ổ cứng 'lich_hoc_key'
-    await prefs.setString('lich_hoc_key', dataJson);
-    print("Đã lưu dữ liệu: $dataJson");
-  }
-
-
-  Future<void> _docDuLieu() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    //Đọc chuỗi JSON từ ổ cứng
-    String? dataJson = prefs.getString('lich_hoc_key');
-
-    if (dataJson != null) {
-      //Decode JSON thanh List<dynamic> TOASK
-      List<dynamic> jsonList = jsonDecode(dataJson);
-
-      //Bien doi tung phan tu JSON tro lai thanh Object MonHoc
-      setState(() {
-        _danhSach.clear(); //Xoa du lieu mau cu di
-        _danhSach.addAll(
-          jsonList.map((e) => MonHoc.fromJson(e)).toList(),
-        );
-      });
-    }
-  }
-
+ 
+ //Gọi service đọc dữ liệu, xong thì vẽ lại màn hình
+ Future<void> _khoiTaoDuLieu() async {
+  await _service.loadData();
+  setState(() {});
+ }
+ 
 
   // --- Hàm hiển thị form nhập ---
-  void _hienThiFormThem() async{
-    //Chờ hộp thoại trả về kết quả
-    //showDialog gọi Widget HopThoaiThemMon được tách ra
+  void _hienThiFormThem() async {
     final ketQua = await showDialog<MonHoc>(
       context: context,
       builder: (context) => const HopThoaiThemMon(),
     );
 
-    //Nếu có kết quả trả về (người dùng bấm lưu)
     if (ketQua != null) {
-      setState(() {
-        _danhSach.add(ketQua);
-      });
-      _luuDuLieu();
+      await _service.themMon(ketQua);
+      setState(() {});
     }
   }
 
+
+  //--- Logic đổi tuần---
+  //soTuan: -1(lùi), +1(tiến)
+  void _doiTuan(int soTuan) {
+    setState(() {
+      _ngayDauTuan = _ngayDauTuan.add(Duration(days: 7 * soTuan));
+    });
+  }
+
+
+  // Hàm về tuần hiện tại
+  void _veHomNay() {
+    setState(() {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      _ngayDauTuan = today.subtract(Duration(days: now.weekday - 1));
+    });
+  }
+
+
+  // Hàm phụ trợ kiểm tra 2 ngày có trùng nhau không (để hiện tiêu đề)
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    //1. Tính ngày cuối tuần (Chủ Nhật)
+    final ngayCuoiTuan = _ngayDauTuan.add(const Duration(days: 6));
+
+    //2. Logic lọc: Chỉ lấy môn nằm trong khung tuần này 
+    //Lấy danh sách từ Services ra để hiển thị
+    final danhSachHienThi = _service.danhSach.where((mon) {
+      return mon.ngayHoc.compareTo(_ngayDauTuan) >= 0 &&
+            mon.ngayHoc.compareTo(ngayCuoiTuan.add(const Duration(days: 1))) < 0;
+    }).toList();
+
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Thời khóa biểu"),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Thời Khóa Biểu", style: TextStyle(fontSize: 18)),
+            Text(
+              "Tuần: ${DateFormat('dd/MM').format(_ngayDauTuan)} - ${DateFormat('dd/MM').format(ngayCuoiTuan)}",
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
+
+
+        //--- Các nút điều hướng ---
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () => _doiTuan(-1),
+          ),
+
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: _veHomNay,
+          ),
+
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: ()  => _doiTuan(1),
+          ),
+      ]
       ),
+
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
@@ -93,51 +137,77 @@ class _ManHinhLichState extends State<ManHinhLich> {
         child: const Icon(Icons.add, color: Colors.white),
       ),
 
-
-      body: _danhSach.isEmpty
-          ? const Center(child: Text("Chưa có lịch học nào"))
+      body: danhSachHienThi.isEmpty
+          ? const Center(child: Text("Tuần này rảnh rỗi!", style: TextStyle(color: Colors.grey, fontSize: 18)))
           : ListView.builder(
               padding: const EdgeInsets.all(10),
-              itemCount: _danhSach.length,
+              itemCount: danhSachHienThi.length,
               itemBuilder: (context, index) {
-                return TheMonHoc(
-                  monHoc: _danhSach[index], 
+                final mon = danhSachHienThi[index]; //Biến mon tượng trưng cho phần từ trong danh sách
 
-                  //Hàm xử lý khi bấm vào (Mở màn hình chi tiết)
-                  onBamVao: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ManHinhChiTiet(
-                          monHoc: _danhSach[index],
+                //Hiển thị thêm ngày tháng để phân biệt
+                String ngayHienThi = DateFormat(
+                  'EEEE, dd/MM/yyyy',
+                ).format(mon.ngayHoc); //TOASK
 
-                          //Hàm xóa để dùng khi được màn hình chi tiết gọi
-                          hamXoa: () {
-                            setState(() {
-                              _danhSach.removeAt(index);
-                            });
-                            _luuDuLieu();
-                          },
+                bool hienDauMuc = true;
+                if (index > 0) {
+                  if (isSameDay(mon.ngayHoc, danhSachHienThi[index - 1].ngayHoc)) {
+                    hienDauMuc = false;
+                  }
+                }
 
-                          //Hàm sửa dùng khi màn hình chi tiết gọi
-                          hamSua: (monMoi) {
-                            //Cập nhật phần tử trong danh sách
-                            setState(() {
-                              _danhSach[index] = monMoi;
-                            });
-                            _luuDuLieu(); 
-                          }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //Chỉ hiện tiêu đề ngày nếu đây là môn đầu tiên, hoặc ngày của môn này KHÁC ngày của môn trước đó.
+                    if (hienDauMuc)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 15, 5, 5),
+                        child: Text(
+                          ngayHienThi,
+                          style: TextStyle(
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          ),
                         ),
                       ),
-                    );
 
-                    //Load lại nếu người dùng có nhập ghi chú
-                    setState(() {});
-                      _luuDuLieu();  
-                  },
+
+                    TheMonHoc(
+                      monHoc: mon,
+                      onBamVao: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ManHinhChiTiet(
+                              monHoc: mon,
+
+                              hamXoa: () async{
+                                await _service.xoaMon(mon);
+                                setState(() {});
+                              },
+
+
+                              hamSua: (monMoi) async{
+                                await _service.suaMon(mon, monMoi);
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        );
+                        //Quay lại thì reload giao diện
+                        setState(() {});
+                      },
+                    ),
+                  ],
                 );
               },
             ),
     );
   }
+
+  
 }

@@ -1,6 +1,7 @@
 // lib/screens/man_hinh_chi_tiet.dart
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lich_hoc_sv/widgets/hop_thoai_them.dart';
 import '../models/mon_hoc.dart'; // Import model MonHoc
 
@@ -48,7 +49,9 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
                   //Cập nhật giao diện
                   widget.monHoc.tenMon = monDaSua.tenMon;
                   widget.monHoc.phongHoc = monDaSua.phongHoc;
+                  widget.monHoc.giangVien = monDaSua.giangVien;
                   widget.monHoc.thoiGian = monDaSua.thoiGian;
+                  widget.monHoc.ngayHoc = monDaSua.ngayHoc;
                 });
 
                 //Báo về màn hình chính để lưu lại
@@ -104,9 +107,22 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
             Card(
               color: Colors.blue.shade50,
               child: ListTile(
-                leading: const Icon(Icons.access_time, color: Colors.blue),
-                title: Text("Giờ: ${widget.monHoc.thoiGian}"),
-                subtitle: Text("Phòng: ${widget.monHoc.phongHoc}"),
+                leading: const Icon(Icons.calendar_today, color: Colors.blue),
+                title: Text("Ngày: ${DateFormat('EEEE, dd/MM/yyyy', 'vi').format(widget.monHoc.ngayHoc)}"), //TOASK
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5),
+                    Text("Phòng: ${widget.monHoc.phongHoc}"),
+                    const SizedBox(height: 5),
+                    
+                    Text(
+                      "Giảng viên: ${widget.monHoc.giangVien}", 
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                  ],
+                )
+
               ),
             ),
             const SizedBox(height: 20),

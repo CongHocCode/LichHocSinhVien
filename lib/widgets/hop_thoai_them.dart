@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart'; //Cho đồng hồ cuộn
+import 'package:intl/intl.dart'; //Để format ngày
 import '../models/mon_hoc.dart';
 
 class HopThoaiThemMon extends StatefulWidget {
@@ -11,22 +12,33 @@ class HopThoaiThemMon extends StatefulWidget {
 }
 
 class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
+  //Controller
+  final _tenController = TextEditingController();
+  final _phongController = TextEditingController();
+  final _gvController = TextEditingController();
+  final _gioController = TextEditingController();
+  final _ngayController = TextEditingController();
+
+  DateTime _selectedDate = DateTime.now(); // Biến lưu ngày thực sự
 
   //Khởi đầu với dữ liệu cũ để khi người dùng sửa không bị trống trơn
   @override
   void initState() {
     super.initState();
+
     if (widget.monHocHienTai != null) {
-      _tenController.text = widget.monHocHienTai!.tenMon;
-      _phongController.text = widget.monHocHienTai!.phongHoc;
-      _gioController.text =  widget.monHocHienTai!.thoiGian;
+      final mon = widget.monHocHienTai!;
+      _tenController.text = mon.tenMon;
+      _phongController.text = mon.phongHoc;
+      _gvController.text = mon.giangVien;
+      _gioController.text = mon.thoiGian;
+      _selectedDate = mon.ngayHoc; //Lấy ngày cũ
+      _ngayController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
+    } else {
+      //Nếu thêm mới thì mặc định là ngày hôm nay
+      _ngayController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
     }
   }
-
-  //Controller
-  final _tenController = TextEditingController();
-  final _phongController = TextEditingController();
-  final _gioController = TextEditingController();
 
   //Hàm chọn giờ
   Future<void> _chonGio() async {
@@ -158,6 +170,23 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
   }
 
 
+  //Hàm chọn ngày (DatePicker)
+  Future<void> _chonNgay() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2030),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _ngayController.text = DateFormat('dd/MM/yyyy').format(picked);
+      });
+    }
+  }
+
   @override
   void dispose() {
     //Hủy controller
@@ -190,6 +219,18 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
             ),
 
             TextField(
+              controller: _gvController,
+              decoration: const InputDecoration(labelText: "Giảng viên", hintText: "VD: Nguyen Van A"),
+            ),
+
+            TextField(
+              controller: _ngayController,
+              readOnly: true,
+              decoration: const InputDecoration(labelText: "Ngày học", prefixIcon: Icon(Icons.calendar_today)),
+              onTap: _chonNgay,
+            ),
+
+            TextField(
               controller: _gioController,
               readOnly: true, //Ngăn không bàn phím lên khi nhấn vào
               decoration: const InputDecoration(
@@ -217,6 +258,8 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
               tenMon: _tenController.text,
               phongHoc: _phongController.text,
               thoiGian: _gioController.text,
+              giangVien: _gvController.text,
+              ngayHoc: _selectedDate,
               //Logic giữ ghi chú
               ghiChu: isEditing ? widget.monHocHienTai!.ghiChu: "",
             );
