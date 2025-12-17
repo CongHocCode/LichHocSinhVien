@@ -4,31 +4,42 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.0.0  # <--- ĐÃ SỬA: Để thấp xuống cho dễ tương thích
 
 dependencies:
   flutter:
     sdk: flutter
-  font_awesome_flutter: ^10.12.0
-  intl: ^0.20.2
-  numberpicker: ^2.1.2
-  path: ^1.9.1
-  shared_preferences: ^2.5.4
-  sqflite: ^2.4.2
+
+  font_awesome_flutter: ^10.7.0 
+  numberpicker: ^2.1.2          
+  intl: ^0.19.0                 # Định dạng ngày tháng (bản 0.19 ổn định hơn 0.20 một chút)
+
+  
+  flutter_local_notifications: ^18.0.1 # Bản 18 hoặc 19 đều ok, nhưng 18 ổn định hơn với timezone
+  timezone: ^0.9.2                     # Timezone chuẩn
+
+ 
+  shared_preferences: ^2.3.2
+  sqflite: ^2.4.1
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.13.1
+  
+  
+  flutter_launcher_icons: ^0.14.2 
+
 
 flutter:
   uses-material-design: true
   assets:
-      - assets/images/
+    - assets/images/  # Nhớ tạo thư mục assets/images ngang hàng với lib
+
 
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
-  image_path: "assets/images/penguin.png"  # <-- Đổi đường dẫn tới ảnh của bạn
-  min_sdk_android: 21 # Quan trọng để hỗ trợ máy đời mới
+  image_path: "assets/images/penguin.png" 
+  min_sdk_android: 21

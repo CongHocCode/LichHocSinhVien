@@ -7,6 +7,7 @@ import '../models/mon_hoc.dart';
 import 'man_hinh_chi_tiet.dart'; 
 import '../widgets/the_mon_hoc.dart'; 
 import '../widgets/hop_thoai_them.dart'; 
+import '../services/notification_helper.dart';
 
 
 class ManHinhLich extends StatefulWidget {
@@ -25,6 +26,7 @@ class _ManHinhLichState extends State<ManHinhLich> {
   @override
   void initState() {
     super.initState();
+    NotificationHelper.xinQuyenThongBao(); //Xin quyền thông báo
     // 1. Logic tìm ngày Thứ 2 của tuần hiện tại
     final now = DateTime.now();
     // Reset giờ về 00:00:00 để so sánh cho chuẩn (Quan trọng!)
