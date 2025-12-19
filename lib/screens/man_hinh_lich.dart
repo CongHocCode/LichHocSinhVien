@@ -89,13 +89,16 @@ class _ManHinhLichState extends State<ManHinhLich> {
 
   // --- Hàm hiển thị form nhập (Thêm mới) ---
   void _hienThiFormThem() async {
-    final ketQua = await showDialog<MonHoc>(
+    final ketQua = await showDialog<List<MonHoc>>(
       context: context,
       builder: (context) => const HopThoaiThemMon(), // Gọi Widget hộp thoại đã tách
     );
 
-    if (ketQua != null) {
-      await _service.themMon(ketQua); // Gọi Service thêm
+    //Kiểm tra NULL
+    if (ketQua != null && ketQua.isNotEmpty) {
+      for (var mon in ketQua) {
+        await _service.themMon(mon);
+      }
       setState(() {});
     }
   }
