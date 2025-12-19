@@ -45,8 +45,15 @@ class DatabaseHelper {
   //Create
   Future<int> create(MonHoc mon) async {
     final db = await instance.database;
+    //Lấy mpap dữ liệu ra
+    final map = mon.toJson();
+
+    // 2. [QUAN TRỌNG] Xóa trường 'id' khỏi map
+    // Để đảm bảo SQL tự động tăng (Auto Increment), không chèn đè ID cũ
+    map.remove('id'); 
+
     // insert trả về id dòng vừa thêm
-    return await db.insert('monhoc', mon.toJson());
+    return await db.insert('monhoc', map);
   }
 
   //Read

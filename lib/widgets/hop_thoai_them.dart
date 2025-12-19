@@ -7,6 +7,7 @@ import 'dart:io';
 
 class HopThoaiThemMon extends StatefulWidget {
   final MonHoc? monHocHienTai;
+
   const HopThoaiThemMon({super.key, this.monHocHienTai});
 
   @override
@@ -22,6 +23,9 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
   final _ngayController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now(); // Biến lưu ngày thực sự
+
+  bool _coLapLai = false;
+  int soTuan = 15;
 
   //Khởi đầu với dữ liệu cũ để khi người dùng sửa không bị trống trơn
   @override
@@ -241,6 +245,44 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
               ),
               onTap: _chonGio,
             ),
+
+            //Công tắc để chọn lặp lại lịch hàng tuần
+            if (widget.monHocHienTai == null) ...[
+              SwitchListTile(
+                title: const Text('Lặp lại (tuần)'),
+                value: _coLapLai,
+                onChanged: (bool value) {
+                  setState(() {
+                    _coLapLai = value;
+                  });
+                }
+              ),
+
+              if (_coLapLai)
+                Row(
+                  children: [
+                    const Text("Số tuần: "),
+                    IconButton(
+                      onPressed: () { //Chặn không cho nhỏ hơn 1
+                        if (soTuan > 1) {
+                          setState(() => soTuan--);
+                        }
+                      },
+                      icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                    ),
+                    Text("$soTuan", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      onPressed: () {
+                        if (soTuan < 20) { //Giới hạn max 20
+                          setState(() => soTuan++);
+                        }
+                      },
+                      icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                    ),
+
+                  ],
+                ),
+            ],
           ],
         ),
       ),
@@ -275,20 +317,31 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
 
             }
 
+            List<MonHoc> ketQua = [];
             final isEditing = widget.monHocHienTai != null;
-            //Tạo object MonHoc từ dữ liệu nhập
-            final monMoi = MonHoc(
-              tenMon: _tenController.text,
-              phongHoc: _phongController.text,
-              thoiGian: _gioController.text,
-              giangVien: _gvController.text,
-              ngayHoc: _selectedDate,
-              //Logic giữ ghi chú
-              ghiChu: isEditing ? widget.monHocHienTai!.ghiChu: "",
-            );
+
+            //Xác định số lần lặp
+            int soLanLoop = _coLapLai ? soTuan : 1;
+            for (var i = 0; i < soLanLoop; i++)
+            {
+              //Tính ngày cho tuần thứ i
+              DateTime ngayCuaTuanNay = _selectedDate.add(Duration(days: 7 * i));
+              //Tạo object mới cho mỗi tuần
+              ketQua.add( MonHoc(
+                tenMon: _tenController.text,
+                phongHoc: _phongController.text,
+                thoiGian: _gioController.text,
+                giangVien: _gvController.text,
+                ngayHoc: ngayCuaTuanNay,
+                //Logic giữ ghi chú
+                ghiChu: isEditing ? widget.monHocHienTai!.ghiChu: "",
+              ));
+            }
 
             //Trả về dữ liệu cho màn hình chính
-            Navigator.pop(context, monMoi);
+            if (context.mounted) {
+              Navigator.pop(context, ketQua);
+            }
           },
           child: Text(widget.monHocHienTai != null ? "Cập nhật" : "Lưu"), 
         )
