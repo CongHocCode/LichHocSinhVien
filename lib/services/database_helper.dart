@@ -35,7 +35,8 @@ class DatabaseHelper {
       thoiGian TEXT NOT NULL,
       ngayHoc TEXT NOT NULL,
       ghiChu TEXT,
-      giangVien TEXT
+      giangVien TEXT,
+      nhacTruoc INTEGER
     )
     ''');
   }

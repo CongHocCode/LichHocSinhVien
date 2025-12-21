@@ -45,9 +45,10 @@ class NotificationHelper {
     required String title,
     required String body,
     required DateTime thoiGianHoc,
+    required int phutNhacTruoc,
   }) async {
-    // Trừ đi 15 phút để nhắc trước
-    final gioNhac = thoiGianHoc.subtract(const Duration(minutes: 15));
+    // Trừ đi số phút để nhắc trước
+    final gioNhac = thoiGianHoc.subtract(Duration(minutes: phutNhacTruoc));
 
     // Nếu giờ nhắc đã qua thì thôi (return luôn để đỡ tốn tài nguyên)
     if (gioNhac.isBefore(DateTime.now())) {
@@ -68,9 +69,12 @@ class NotificationHelper {
           'lich_hoc_channel',
           'Lịch Học',
           // [FIX]: Thêm mô tả cho người dùng biết kênh này làm gì
-          channelDescription: 'Nhắc nhở trước giờ học 15 phút',
+          channelDescription: 'Nhắc nhở trước giờ học!',
           importance: Importance.max,
           priority: Priority.high,
+
+          fullScreenIntent: true,
+          category: AndroidNotificationCategory.alarm, //Khai báo đây là dạng báo thức
         ),
       ),
 

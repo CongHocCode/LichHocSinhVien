@@ -54,6 +54,7 @@ class DanhSachService {
       title: "Sắp đến giờ học: ${mon.tenMon}",
       body: "Phòng: ${mon.phongHoc} | Giờ: ${mon.thoiGian}",
       thoiGianHoc: _getDateTimeChuan(mon),
+      phutNhacTruoc: mon.nhacTruoc,
     );
   }
 
@@ -88,6 +89,7 @@ class DanhSachService {
           title: "Sắp đến giờ học: ${monMoi.tenMon}",
           body: "Phòng: ${monMoi.phongHoc} | Giờ: ${monMoi.thoiGian}",
           thoiGianHoc: _getDateTimeChuan(monMoi),
+          phutNhacTruoc: monMoi.nhacTruoc,
         );
       }
     }

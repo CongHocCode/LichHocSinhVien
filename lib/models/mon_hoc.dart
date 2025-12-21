@@ -8,6 +8,7 @@ class MonHoc {
   DateTime ngayHoc;
   String ghiChu;
   String giangVien;
+  int nhacTruoc;
 
   MonHoc({
     this.id,
@@ -17,6 +18,7 @@ class MonHoc {
     required this.ngayHoc,
     required this.giangVien,
     this.ghiChu = "",
+    required this.nhacTruoc,
   });
 
   //Ham bien object thanh Map (chuyen thanh json)
@@ -29,6 +31,7 @@ class MonHoc {
       'ngayHoc' : ngayHoc.toIso8601String(), //Convert dưới dạng chuỗi ISO-8601 (2025-12-08T00:00:00) TOASK
       'ghiChu' : ghiChu,
       'giangVien' : giangVien,
+      'nhacTruoc' : nhacTruoc,
     };
   }
 
@@ -42,6 +45,7 @@ class MonHoc {
       ngayHoc: DateTime.parse(json['ngayHoc']), //Parse chuỗi thành ngày
       ghiChu: json['ghiChu'] ?? "", //null thi lay rong
       giangVien: json['giangVien'],
+      nhacTruoc: json['nhacTruoc'],
     );
   }
 }

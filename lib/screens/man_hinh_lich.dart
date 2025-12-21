@@ -8,6 +8,7 @@ import 'man_hinh_chi_tiet.dart';
 import '../widgets/the_mon_hoc.dart'; 
 import '../widgets/hop_thoai_them.dart'; 
 import '../services/notification_helper.dart';
+import '../services/auto_start_helper.dart';
 
 
 class ManHinhLich extends StatefulWidget {
@@ -59,6 +60,7 @@ class _ManHinhLichState extends State<ManHinhLich> {
         ngayHoc: today.add(Duration(days: lechNgay)), 
         giangVien: "GV. Demo",
         ghiChu: "Dữ liệu mẫu tự động tạo",
+        nhacTruoc: 15,
       );
     }
 
@@ -215,6 +217,12 @@ class _ManHinhLichState extends State<ManHinhLich> {
                 await _service.lamMoiDanhSach([]); // Xóa sạch bằng cách nạp list rỗng
                 setState(() {});
               }
+
+              //Gọi hàm sửa lỗi
+              else if (value == 'fix_loi') {
+                AutoStartHelper.fixLoiThongBao(context);
+              }
+
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
@@ -225,6 +233,16 @@ class _ManHinhLichState extends State<ManHinhLich> {
                 value: 'xoa_het',
                 child: Row(children: [Icon(Icons.delete_forever, color: Colors.red), SizedBox(width: 10), Text("Xóa tất cả")]),
               ),
+              const PopupMenuItem(
+                value: 'fix_loi',
+                child: Row(
+                  children: [
+                    Icon(Icons.build_circle, color: Colors.orange),
+                    SizedBox(width: 10),
+                    Text("Sửa lỗi không báo")
+                  ],
+                )
+              )
             ],
           ),
         ],

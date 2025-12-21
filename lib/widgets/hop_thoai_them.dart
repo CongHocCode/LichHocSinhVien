@@ -24,6 +24,16 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
 
   DateTime _selectedDate = DateTime.now(); // Biến lưu ngày thực sự
 
+  int _nhacTruoc = 15;
+  final Map<int, String> _tuyChonNhac = {
+    0: "Không nhắc",
+    1: "Trước 1 phút", //Để test 
+    15: "Trước 15 phút",
+    30: "Trước 30 phút",
+    60: "Trước 1 tiếng",
+    1440: "Trước 1 ngày"
+  };
+
   bool _coLapLai = false;
   int soTuan = 15;
 
@@ -40,6 +50,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
       _gioController.text = mon.thoiGian;
       _selectedDate = mon.ngayHoc; //Lấy ngày cũ
       _ngayController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
+      _nhacTruoc = mon.nhacTruoc;
     } else {
       //Nếu thêm mới thì mặc định là ngày hôm nay
       _ngayController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
@@ -214,6 +225,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            //Ô THOẠI NHẬP THÔNG TIN: TÊN, PHÒNG, GIẢNG VIÊN, NGÀY, GIỜ
             TextField(
               controller: _tenController,
               decoration: const InputDecoration(labelText: "Tên môn", hintText: "VD: Toán"),
@@ -246,8 +258,37 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
               onTap: _chonGio,
             ),
 
-            //Công tắc để chọn lặp lại lịch hàng tuần
-            if (widget.monHocHienTai == null) ...[
+            //Ô THOẠI ĐỂ CHỈNH THỜI GIAN NHẮC TRƯỚC
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
+              ),
+
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int> (
+                  value: _nhacTruoc,
+                  isExpanded: true,
+                  icon: const Icon(Icons.notifications_active, color: Colors.blue),
+                  items: _tuyChonNhac.entries.map((entry){ //Đưa cái map tùy chọn nhắc vào để làm phần tử cho menu
+                    return DropdownMenuItem<int>(
+                      value: entry.key, //Số phút
+                      child: Text(entry.value), //Mấy cái chữ đại diện vd: trước 1 tiếng
+                    );
+                  }).toList(),
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      _nhacTruoc = newValue!; //Gán số phút nhắc trước mới
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            //CÔNG TẮC CHỌN LẶP LẠI LỊCH HÀNG TUẦN
+            if (widget.monHocHienTai == null) ...[ //Để nếu đang sửa thông tin môn thì không hiện mục lặp lại lên (đỡ phiền)
               SwitchListTile(
                 title: const Text('Lặp lại (tuần)'),
                 value: _coLapLai,
@@ -310,7 +351,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
                     ),
                   );
                 }
-                await Permission.scheduleExactAlarm.request(); //Mở trang cài đặt\
+                await Permission.scheduleExactAlarm.request(); //Mở trang cài đặt
                 status = await Permission.scheduleExactAlarm.status;
 
               }
@@ -321,7 +362,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
             final isEditing = widget.monHocHienTai != null;
 
             //Xác định số lần lặp
-            int soLanLoop = _coLapLai ? soTuan : 1;
+            int soLanLoop = _coLapLai ? soTuan : 1; //Nếu có lặp thì lấy số tuần, không thì lấy 1
             for (var i = 0; i < soLanLoop; i++)
             {
               //Tính ngày cho tuần thứ i
@@ -333,6 +374,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
                 thoiGian: _gioController.text,
                 giangVien: _gvController.text,
                 ngayHoc: ngayCuaTuanNay,
+                nhacTruoc: _nhacTruoc,
                 //Logic giữ ghi chú
                 ghiChu: isEditing ? widget.monHocHienTai!.ghiChu: "",
               ));
