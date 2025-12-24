@@ -9,6 +9,7 @@ import '../widgets/the_mon_hoc.dart';
 import '../widgets/hop_thoai_them.dart'; 
 import '../services/notification_helper.dart';
 import '../services/auto_start_helper.dart';
+import '../services/backup_service.dart';
 
 
 class ManHinhLich extends StatefulWidget {
@@ -231,6 +232,18 @@ class _ManHinhLichState extends State<ManHinhLich> {
                 AutoStartHelper.fixLoiThongBao(context);
               }
 
+              //Gọi hàm Backup
+              else if (value == 'backup') {
+                await BackupService.taoBanSaoLuu(context, _service.danhSach);
+              }
+
+              //Gọi hàm restore
+              else if (value == 'restore') {
+                await BackupService.khoiPhucDuLieu(context, _service, () {
+                  setState(() {}); //Hàm callback chạy khi restore thành công
+                });
+              }
+
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
@@ -241,6 +254,19 @@ class _ManHinhLichState extends State<ManHinhLich> {
                 value: 'xoa_het',
                 child: Row(children: [Icon(Icons.delete_forever, color: Colors.red), SizedBox(width: 10), Text("Xóa tất cả")]),
               ),
+              
+              const PopupMenuDivider(), // Đường kẻ ngang cho đẹp
+              const PopupMenuItem(
+                value: 'backup',
+                child: Row(children: [Icon(Icons.cloud_upload, color: Colors.blue), SizedBox(width: 10), Text("Sao lưu dữ liệu")]),
+              ),
+
+              const PopupMenuItem(
+                value: 'restore',
+                child: Row(children: [Icon(Icons.cloud_download, color: Colors.green), SizedBox(width: 10), Text("Khôi phục dữ liệu")]),
+              ),
+
+              const PopupMenuDivider(),
               const PopupMenuItem(
                 value: 'fix_loi',
                 child: Row(
@@ -250,7 +276,8 @@ class _ManHinhLichState extends State<ManHinhLich> {
                     Text("Sửa lỗi không báo")
                   ],
                 )
-              )
+              ),
+
             ],
           ),
         ],
