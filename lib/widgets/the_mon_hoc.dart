@@ -14,10 +14,10 @@ class TheMonHoc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color mauNen = Color(monHoc.mauSac);
-    bool laLichCaNhan = monHoc.loaiSuKien == 1;
-    IconData iconDaiDien = laLichCaNhan ? Icons.person : Icons.class_;
-    Color mauHienThi = laLichCaNhan ? Colors.orange : mauNen;
 
+    bool laLichCaNhan = monHoc.loaiSuKien == 1;
+    IconData iconDaiDien = laLichCaNhan ? Icons.person : Icons.school;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       // 1. Tạo cái Hộp có bóng đổ và nền trắng (Nhưng KHÔNG vẽ viền ở đây)
@@ -40,7 +40,7 @@ class TheMonHoc extends StatelessWidget {
           // 3. Vẽ cái viền màu bên trái ở đây (Không khai báo borderRadius ở trong này nữa -> Hết lỗi)
           decoration: BoxDecoration(
             border: Border(
-              left: BorderSide(color: mauHienThi, width: 6), // Viền trái đậm
+              left: BorderSide(color: mauNen, width: 6), // Viền trái đậm
             ),
           ),
           child: Material(
@@ -55,10 +55,10 @@ class TheMonHoc extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: mauHienThi.withOpacity(0.1),
+                        color: mauNen.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(iconDaiDien, color: mauHienThi, size: 24),
+                      child: Icon(iconDaiDien, color: mauNen, size: 24),
                     ),
                     const SizedBox(width: 15),
                     

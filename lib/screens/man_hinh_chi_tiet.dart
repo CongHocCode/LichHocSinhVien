@@ -56,6 +56,7 @@ class _ManHinhChiTietState extends State<ManHinhChiTiet> {
                   widget.monHoc.thoiGian = monDaSua.thoiGian;
                   widget.monHoc.ngayHoc = monDaSua.ngayHoc;
                   widget.monHoc.nhacTruoc = monDaSua.nhacTruoc;
+                  widget.monHoc.mauSac = monDaSua.mauSac;
                 });
 
                 //Báo về màn hình chính để lưu lại

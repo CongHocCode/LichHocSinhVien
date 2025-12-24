@@ -74,8 +74,11 @@ class NotificationHelper {
           importance: Importance.max,
           priority: Priority.high,
 
-          fullScreenIntent: true,
+          fullScreenIntent: false,
+
           category: AndroidNotificationCategory.reminder, //Khai báo đây là dạng reminder
+          visibility: NotificationVisibility.public,
+          enableVibration: true,
         ),
       ),
 

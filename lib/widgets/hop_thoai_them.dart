@@ -22,11 +22,11 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
   final _gvController = TextEditingController();
   final _gioController = TextEditingController();
   final _ngayController = TextEditingController();
-  final _ghiChuController = TextEditingController(); // [MỚI] Controller cho ghi chú
+  final _ghiChuController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now(); // Biến lưu ngày thực sự
   
-  // [MỚI] Biến chọn Loại sự kiện (0: Học, 1: Cá nhân)
+  // Biến chọn Loại sự kiện (0: Học, 1: Cá nhân)
   int _loaiSuKien = 0; 
 
   // Cấu hình nhắc nhở
@@ -40,7 +40,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
     1440: "Trước 1 ngày"
   };
   
-  // [MỚI] Biến chọn Màu sắc
+  // Biến chọn Màu sắc
   int _mauDaChon = 0xFF2196F3; // Mặc định xanh
   final List<int> _bangMau = [
     0xFF2196F3, // Blue
@@ -68,7 +68,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
       _gioController.text = mon.thoiGian;
       _selectedDate = mon.ngayHoc;
       _nhacTruoc = mon.nhacTruoc;
-      // [MỚI] Load thêm các trường mới
+      // Load thêm các trường mới
       _ghiChuController.text = mon.ghiChu;
       _loaiSuKien = mon.loaiSuKien;
       _mauDaChon = mon.mauSac;
@@ -85,7 +85,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
     _gvController.dispose();
     _gioController.dispose();
     _ngayController.dispose();
-    _ghiChuController.dispose(); // [MỚI]
+    _ghiChuController.dispose();
     super.dispose();
   }
 
@@ -155,24 +155,30 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
     }
   }
 
-  // --- LOGIC KIỂM TRA QUYỀN ---
+  // --- LOGIC KIỂM TRA QUYỀN (Đã tối ưu để dùng lại) ---
   Future<bool> _checkPermission() async {
     if (!Platform.isAndroid) return true;
     
-    var status = await Permission.scheduleExactAlarm.status; //Kiểm tra trạng thái quyền được báo theo lịch
-    if (status.isDenied) { //Quyền bị từ chối thì hiện thông báo lên và mở giao diện xin quyền
+    var status = await Permission.scheduleExactAlarm.status; 
+    
+    if (status.isDenied) { 
+      //Quyền bị từ chối thì hiện thông báo lên và mở giao diện xin quyền
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Vui lòng cấp quyền để nhắc lịch!"), backgroundColor: Colors.orange),
+          const SnackBar(
+            content: Text("Vui lòng cấp quyền 'Báo thức' để nhắc lịch!"), 
+            backgroundColor: Colors.orange
+          ),
         );
       }
       await Permission.scheduleExactAlarm.request();
-      // Check lại lần nữa
-      status = await Permission.scheduleExactAlarm.status; //Xem lại status
+      // Check lại lần nữa xem người dùng đã bật chưa
+      status = await Permission.scheduleExactAlarm.status; 
     }
     
-    //return status.isGranted; //Dòng này để chỉnh nếu như muốn không có quyền thì không được lưu lịch
+    // Trả về true nếu đã có quyền, false nếu vẫn từ chối
     return true;
+    //return status.isGranted; 
   }
 
   @override
@@ -185,7 +191,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // --- [MỚI] CHỌN LOẠI SỰ KIỆN ---
+            // --- CHỌN LOẠI SỰ KIỆN ---
             Container(
               margin: const EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
@@ -222,12 +228,11 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
                 ],
               ),
             ),
-            // ---------------------------
 
             TextField(
               controller: _tenController, 
               decoration: InputDecoration(
-                labelText: _loaiSuKien == 0 ? "Tên môn" : "Tên sự kiện", // Đổi tên linh hoạt
+                labelText: _loaiSuKien == 0 ? "Tên môn" : "Tên sự kiện", 
                 hintText: _loaiSuKien == 0 ? "VD: Toán" : "VD: Đi chơi",
               )
             ),
@@ -235,7 +240,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
             TextField(
               controller: _phongController, 
               decoration: InputDecoration(
-                labelText: _loaiSuKien == 0 ? "Phòng" : "Địa điểm", // Đổi tên linh hoạt
+                labelText: _loaiSuKien == 0 ? "Phòng" : "Địa điểm", 
                 hintText: _loaiSuKien == 0 ? "VD: B101" : "VD: Quán Cafe",
               )
             ),
@@ -247,7 +252,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
                 decoration: const InputDecoration(labelText: "Giảng viên", hintText: "VD: Thầy A")
               ),
 
-            // [MỚI] Ô Ghi chú nằm ngay đây
+            // Ô Ghi chú
             TextField(
               controller: _ghiChuController, 
               decoration: const InputDecoration(labelText: "Ghi chú", hintText: "VD: Mang máy tính"),
@@ -275,32 +280,23 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
 
             const SizedBox(height: 10),
 
-            // Dropdown chọn thời gian nhắc //TODO: hỏi lại cái val
+            // Dropdown chọn thời gian nhắc 
             DropdownButtonFormField<int>(
-              value: _nhacTruoc,
-              isExpanded: true, // Quan trọng: Để chữ tự co giãn
+              value: _nhacTruoc, // Đã đổi thành value để nhận update từ setState
               decoration: const InputDecoration(
                 labelText: "Thông báo nhắc nhở",
                 prefixIcon: Icon(Icons.notifications_active, color: Colors.amber),
                 border: OutlineInputBorder(),
-                // GIẢM PADDING XUỐNG
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10), // Giảm padding cho đỡ lỗi overflow
               ),
-              items: _tuyChonNhac.entries.map((e) => DropdownMenuItem(
-                value: e.key,
-                child: Text(
-                  e.value,
-                  // Cho chữ nhỏ lại xíu (14) và cắt bớt nếu quá dài
-                  style: const TextStyle(fontSize: 14), 
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )).toList(),
+              isExpanded: true,
+              items: _tuyChonNhac.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, overflow: TextOverflow.ellipsis))).toList(),
               onChanged: (val) => setState(() => _nhacTruoc = val!),
             ),
 
             const SizedBox(height: 15),
             
-            // --- [MỚI] CHỌN MÀU SẮC ---
+            // --- CHỌN MÀU SẮC ---
             const Align(alignment: Alignment.centerLeft, child: Text("Màu sắc:", style: TextStyle(fontWeight: FontWeight.bold))),
             const SizedBox(height: 8),
             Wrap(
@@ -322,9 +318,8 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
                 );
               }).toList(),
             ),
-            // --------------------------
 
-            // --- PHẦN LẶP LẠI (Chỉ hiện khi Thêm Mới) --- TODO: Check lại cái active gì đó
+            // --- PHẦN LẶP LẠI (Chỉ hiện khi Thêm Mới) ---
             if (!isEditing) ...[
               const Divider(),
               SwitchListTile(
@@ -375,36 +370,21 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
         ),
       ),
 
-
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context), child: const Text("Hủy"),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")),
+        
         ElevatedButton(
           onPressed: () async {
             if(_tenController.text.trim().isEmpty) return;
             
-            // KIỂM TRA QUYỀN ĐỂ HẸN LỊCH THÔNG BÁO
-            if (_nhacTruoc > 0 && Platform.isAndroid) { // Chỉ check nếu có nhắc
-              var status = await Permission.scheduleExactAlarm.status;
-              if (status.isDenied) {
-                //Hiện thông báo nhắc nhở
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Bạn cần cấp quyền 'Báo thức' để App nhắc lịch nhé!"),
-                      duration: Duration(seconds: 3),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                }
-                await Permission.scheduleExactAlarm.request(); //Mở trang cài đặt\
-                status = await Permission.scheduleExactAlarm.status;
-                
-                // Nếu sau khi mở cài đặt mà vẫn chưa có quyền thì dừng lại
-                if (status.isDenied) return;
-              }
+            // --- SỬA LẠI: GỌI HÀM KIỂM TRA QUYỀN ---
+            // Nếu có đặt nhắc nhở thì mới kiểm tra quyền
+            if (_nhacTruoc > 0) {
+              bool coQuyen = await _checkPermission();
+              // Nếu kiểm tra xong mà vẫn không có quyền thì DỪNG LẠI
+              if (!coQuyen) return; 
             }
+            // ----------------------------------------
 
             final isEditing = widget.monHocHienTai != null;
             
@@ -456,7 +436,7 @@ class _HopThoaiThemMonState extends State<HopThoaiThemMon> {
               }
             }
           },
-          child: Text(widget.monHocHienTai != null ? "Cập nhật" : "Lưu"), 
+          child: Text(isEditing ? "Cập nhật" : "Lưu"), 
         )
       ],
     );
