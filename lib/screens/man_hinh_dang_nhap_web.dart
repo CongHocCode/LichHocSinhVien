@@ -42,7 +42,7 @@ class _ManHinhDangNhapWebState extends State<ManHinhDangNhapWeb> {
                   children: [
                     SimpleDialogOption(
                       padding: const EdgeInsets.all(15),
-                      child: const Text("⚡ Quét nhanh (5 tuần tới)(Khuyến khích)", style: TextStyle(fontSize: 16)),
+                      child: const Text("⚡ Quét nhanh (5 tuần tới)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
                       onPressed: () => Navigator.pop(ctx, 5),
                     ),
                     SimpleDialogOption(
@@ -52,7 +52,7 @@ class _ManHinhDangNhapWebState extends State<ManHinhDangNhapWeb> {
                     ),
                     SimpleDialogOption(
                       padding: const EdgeInsets.all(15),
-                      child: const Text("📚 Học kỳ Chính (18 tuần)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                      child: const Text("📚 Học kỳ Chính (18 tuần)", style: TextStyle(fontSize: 16)),
                       onPressed: () => Navigator.pop(ctx, 18),
                     ),
                     SimpleDialogOption(
