@@ -67,16 +67,16 @@ class NotificationHelper {
       //Chi tiết thông báo
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'lich_hoc_channel',
+          'lich_hoc_channel_v2',
           'Lịch Học',
           // [FIX]: Thêm mô tả cho người dùng biết kênh này làm gì
           channelDescription: 'Nhắc nhở trước giờ học!',
           importance: Importance.max,
           priority: Priority.high,
 
-          fullScreenIntent: false,
+          fullScreenIntent: true,
 
-          category: AndroidNotificationCategory.reminder, //Khai báo đây là dạng reminder
+          category: AndroidNotificationCategory.alarm, 
           visibility: NotificationVisibility.public,
           enableVibration: true,
         ),
